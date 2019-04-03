@@ -14,6 +14,14 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    
+private slots:
+    void newGame();
+    void pause();
+    void up();
+    void right();
+    void down();
+    void left();
 
 private:
     Ui::MainWindow *ui;
