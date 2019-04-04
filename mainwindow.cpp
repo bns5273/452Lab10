@@ -46,8 +46,16 @@ MainWindow::~MainWindow()
 
 
 void MainWindow::newGame(){
-    x = 10;
-    y = 5;
+    x = rand() % 48;
+    y = rand() % 27;
+    px = rand() % 48;
+    py = rand() % 27;
+    drawPoint(px, py, qRgb(255, 0, 0));
+
+    xs.push_back(x);
+    ys.push_back(y);
+
+    drawSnake();
 }
 
 void MainWindow::pause(){
@@ -77,41 +85,39 @@ void MainWindow::right(){
 
 
 void MainWindow::drawSnake(){
-
     // add some logic to see if the point is out of bounds
 
     for (int i = 0; i < xs.size() -1; i++){
         if (xs.at(i) == x && ys.at(i) == y){
             QMessageBox::information(this, tr("hit snake"), tr("You Lose!"));
         }
-
-        else if (x == px && y == py){
-            xs.push_back(x);
-            ys.push_back(y);
-
-            // old pellet position will be colored over anyway
-            px = rand() % 48;
-            py = rand() % 27;
-            drawPoint(px, py, qRgb(255, 0, 0));
-
-            std::cout << "PELLET" << std::endl;
-        }
-        // blank space
-        else {
-            drawPoint(xs.at(0), ys.at(0), qRgb(0, 0, 0));
-            std::cout << xs.at(0) << " " << ys.at(0) << std::endl;
-
-            xs.push_back(x);
-            ys.push_back(y);
-
-            xs.erase(xs.begin());
-            ys.erase(ys.begin());
-        }
     }
 
+    if (x == px && y == py){
+        xs.push_back(x);
+        ys.push_back(y);
 
-    // draw snake
-    drawPoint(x, y, qRgb(0, 255, 0));
+        // old pellet position will be colored over
+        drawPoint(px, py, qRgb(0, 255, 0));
+        px = rand() % 48;
+        py = rand() % 27;
+        drawPoint(px, py, qRgb(255, 0, 0));
+
+        std::cout << "PELLET" << std::endl;
+    }
+    // blank space
+    else {
+        drawPoint(xs.at(0), ys.at(0), qRgb(0, 0, 0));
+        std::cout << xs.at(0) << " " << ys.at(0) << std::endl;
+
+        xs.push_back(x);
+        ys.push_back(y);
+
+        xs.erase(xs.begin());
+        ys.erase(ys.begin());
+
+        drawPoint(x, y, qRgb(0, 255, 0));
+    }
 }
 
 void MainWindow::drawPoint(int x0, int y0, QRgb color){
