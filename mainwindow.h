@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QGraphicsScene>
+#include <QPainter>
+#include <QGraphicsPixmapItem>
 
 namespace Ui {
 class MainWindow;
@@ -13,6 +16,15 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
+
+    QGraphicsScene *scene;
+    QPainter *painter;
+    QPixmap *pixmap;
+    QGraphicsPixmapItem *item;
+
+    int x;
+    int y;
+    void drawPoint();
     ~MainWindow();
     
 private slots:

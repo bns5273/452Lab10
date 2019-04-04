@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include <QApplication>
+#include <unistd.h>
+
 
 int main(int argc, char *argv[])
 {
@@ -7,29 +9,8 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
+
     return a.exec();
 }
 
-void MainWindow::newGame(){
 
-}
-
-void MainWindow::pause(){
-
-}
-
-void MainWindow::up(){
-
-}
-
-void MainWindow::down(){
-
-}
-
-void MainWindow::left(){
-
-}
-
-void MainWindow::right(){
-
-}
