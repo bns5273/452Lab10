@@ -6,23 +6,40 @@
 #include <time.h>
 #include <iostream>
 
+/*
+ * we need separate vectors for the snake and the pellet. was a bad idea!
+ * extending the snake needs implemented
+ * randomly initizalizing the snake to 3 squares needs done
+ * newGame needs done better
+ *
+*/
+
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
+    imgScreen = QImage(480, 270, QImage::Format_RGB888);
+    imgScreen.fill(Qt::black);
+    ui->screen->setPixmap(QPixmap::fromImage(imgScreen));
+    ui->screen->repaint();
+
+
     srand(time(NULL));
 
-    x = 10;
-    y = 5;
+    x = rand() % 48;
+    y = rand() % 27;
 
-    scene = new QGraphicsScene();
-    pixmap = new QPixmap(470, 260);
-    item = new QGraphicsPixmapItem(*pixmap);
+    // pellet
+    xs.push_back(rand() % 48);
+    ys.push_back(rand() % 27);
+    zs.push_back(1);
 
-    scene->addItem(item);
+    xs.push_back(x);
+    ys.push_back(y);
+    zs.push_back(0);
 
-    ui->graphics->setScene(scene);
+    drawSnake();
 }
 
 MainWindow::~MainWindow()
@@ -40,57 +57,85 @@ void MainWindow::newGame(){
 void MainWindow::pause(){
     // no need to implement yet
 
-    // temporarily using this to test removing the front square
-    scene->removeItem(scene->items().at(0));
 }
 
 void MainWindow::up(){
     y--;
-    drawPoint();
+    drawSnake();
 }
 
 void MainWindow::down(){
     y++;
-    drawPoint();
+    drawSnake();
 }
 
 void MainWindow::left(){
     x--;
-    drawPoint();
+    drawSnake();
 }
 
 void MainWindow::right(){
     x++;
-    drawPoint();
+    drawSnake();
 }
 
-void MainWindow::drawPoint(){
-    // each object relies on previous to instantiate
-    // qpainter, qpixmap, qgraphicspixmapitem, scene, qgraphicsview
 
+void MainWindow::drawSnake(){
 
     // add some logic to see if the point is already drawn on
     // or out of bounds
     // or a goal square
 
+    for (int i = 0; i < xs.size() -1; i++){
+        if (xs.at(i) == x && ys.at(i) == y){
+            // snake!
+            if (zs.at(i) == 0){
+                QMessageBox::information(this, tr("hit snake"), tr("You Lose!"));
+            }
 
-    painter = new QPainter(pixmap);
-    painter->fillRect(x*10, y*10, 10, 10, Qt::blue);
-    painter->end();
-    item = new QGraphicsPixmapItem(*pixmap);
-    scene->addItem(item);
+            // pellet
+            else if (zs.at(i) == 1){
+                zs.at(i) = 0;           // food pixel becomes snake
+                xs.push_back(x);
+                ys.push_back(y);
+                zs.push_back(0); // 0 for snake, 1 for pellet,
+                std::cout << "PELLET" << std::endl;
+            }
+        }
+        // blank space
+        else {
+            drawPoint(xs.at(0), ys.at(0), qRgb(0, 0, 0));
+            std::cout << xs.at(0) << " " << ys.at(0) << std::endl;
 
-    //scene->removeItem(scene->items().at(0));
-    std::cout << scene->items().length() << std::endl;
+            xs.push_back(x);
+            ys.push_back(y);
+            zs.push_back(0);
+
+            xs.erase(xs.begin());
+            ys.erase(ys.begin());
+            zs.erase(zs.begin());
+        }
+    }
+
+
+    // draw snake + pellet
+    for (int k = 0; k < xs.size(); k++){
+        if (zs.at(k) == 0){
+            drawPoint(xs.at(k), ys.at(k), qRgb(0, 255, 0));
+        }
+        else{
+            drawPoint(xs.at(k), ys.at(k), qRgb(255, 0, 0));
+        }
+    }
 }
 
-void MainWindow::showGoal(){
-    int x1 = rand() % 48;
-    int y1 = rand() % 27;
+void MainWindow::drawPoint(int x0, int y0, QRgb color){
+    for (int i = 0; i < 10; i++){
+        for (int j = 0; j < 10; j++){
+            imgScreen.setPixel(x0*10 + i, y0*10 + j, color);
+        }
+    }
 
-    painter = new QPainter(pixmap);
-    painter->fillRect(x1*10, y1*10, 10, 10, Qt::red);
-    painter->end();
-    item = new QGraphicsPixmapItem(*pixmap);
-    scene->addItem(item);
+    ui->screen->setPixmap(QPixmap::fromImage(imgScreen));
+    ui->screen->repaint();
 }

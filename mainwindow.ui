@@ -27,19 +27,6 @@
      <string>&lt;-</string>
     </property>
    </widget>
-   <widget class="QGraphicsView" name="graphics">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>480</width>
-      <height>270</height>
-     </rect>
-    </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QPushButton" name="left">
     <property name="geometry">
      <rect>
@@ -129,6 +116,19 @@
     </property>
     <property name="text">
      <string>Score:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="screen">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>5</y>
+      <width>470</width>
+      <height>270</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>

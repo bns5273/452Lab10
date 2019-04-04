@@ -5,6 +5,7 @@
 #include <QGraphicsScene>
 #include <QPainter>
 #include <QGraphicsPixmapItem>
+#include <vector>
 
 namespace Ui {
 class MainWindow;
@@ -17,16 +18,23 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
 
-    QGraphicsScene *scene;
-    QPainter *painter;
-    QPixmap *pixmap;
-    QGraphicsPixmapItem *item;
+    QImage imgScreen;
 
+    // current position
     int x;
     int y;
 
-    void drawPoint();
-    void showGoal();
+    // snake array
+    struct point{
+        int x, y;
+    };
+
+    std::vector<int> xs;
+    std::vector<int> ys;
+    std::vector<int> zs;
+
+    void drawSnake();
+    void drawPoint(int x, int y, QRgb color);
 
     ~MainWindow();
     
