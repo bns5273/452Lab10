@@ -7,7 +7,7 @@
 #include <iostream>
 
 /*
- * extending the snake needs implemented
+ *
  * randomly initizalizing the snake to 3 squares needs done
  * newGame needs done better
  *
@@ -17,25 +17,11 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    imgScreen = QImage(480, 270, QImage::Format_RGB888);
-    imgScreen.fill(Qt::black);
-    ui->screen->setPixmap(QPixmap::fromImage(imgScreen));
-    ui->screen->repaint();
-
-
-    srand(time(NULL));
-
-    x = rand() % 48;
-    y = rand() % 27;
-    px = rand() % 48;
-    py = rand() % 27;
-    drawPoint(px, py, qRgb(255, 0, 0));
-
-    xs.push_back(x);
-    ys.push_back(y);
-
-    drawSnake();
+        imgScreen = QImage(480, 270, QImage::Format_RGB888);
+        ui->screen->setPixmap(QPixmap::fromImage(imgScreen));
+        ui->screen->repaint();
+        srand(time(NULL));
+        newGame();
 }
 
 MainWindow::~MainWindow()
@@ -46,6 +32,17 @@ MainWindow::~MainWindow()
 
 
 void MainWindow::newGame(){
+
+
+//    imgScreen = QImage(480, 270, QImage::Format_RGB888);
+    imgScreen.fill(Qt::black);
+//    ui->screen->setPixmap(QPixmap::fromImage(imgScreen));
+//    ui->screen->repaint();
+
+
+    //srand(time(NULL));
+    xs.clear();
+    ys.clear();
     x = rand() % 48;
     y = rand() % 27;
     px = rand() % 48;
@@ -86,13 +83,19 @@ void MainWindow::right(){
 
 void MainWindow::drawSnake(){
     // add some logic to see if the point is out of bounds
+    if (x > 46 || x < 0 || y > 26 || y < 0){
+        QMessageBox::information(this, tr("You Lose!"), tr("Out of bounds!"));
+        newGame();
+    }
 
     for (int i = 0; i < xs.size() -1; i++){
         if (xs.at(i) == x && ys.at(i) == y){
-            QMessageBox::information(this, tr("hit snake"), tr("You Lose!"));
+            QMessageBox::information(this, tr("You Lose!"), tr("Stop hitting yourself!"));
+            newGame();
         }
     }
 
+    // pellet
     if (x == px && y == py){
         xs.push_back(x);
         ys.push_back(y);
@@ -105,6 +108,7 @@ void MainWindow::drawSnake(){
 
         std::cout << "PELLET" << std::endl;
     }
+
     // blank space
     else {
         drawPoint(xs.at(0), ys.at(0), qRgb(0, 0, 0));
