@@ -24,7 +24,10 @@ public:
 
     int x;
     int y;
+
     void drawPoint();
+    void showGoal();
+
     ~MainWindow();
     
 private slots:
