@@ -9,7 +9,6 @@
 /*
  *
  * randomly initizalizing the snake to 3 squares needs done
- * newGame needs done better
  *
 */
 
@@ -82,12 +81,13 @@ void MainWindow::right(){
 
 
 void MainWindow::drawSnake(){
-    // add some logic to see if the point is out of bounds
+    // out of bounds?
     if (x > 46 || x < 0 || y > 26 || y < 0){
         QMessageBox::information(this, tr("You Lose!"), tr("Out of bounds!"));
         newGame();
     }
 
+    // already taken by snake?
     for (int i = 0; i < xs.size() -1; i++){
         if (xs.at(i) == x && ys.at(i) == y){
             QMessageBox::information(this, tr("You Lose!"), tr("Stop hitting yourself!"));
@@ -95,7 +95,7 @@ void MainWindow::drawSnake(){
         }
     }
 
-    // pellet
+    // pellet?
     if (x == px && y == py){
         xs.push_back(x);
         ys.push_back(y);
