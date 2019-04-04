@@ -7,7 +7,6 @@
 #include <iostream>
 
 /*
- * we need separate vectors for the snake and the pellet. was a bad idea!
  * extending the snake needs implemented
  * randomly initizalizing the snake to 3 squares needs done
  * newGame needs done better
@@ -29,15 +28,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     x = rand() % 48;
     y = rand() % 27;
-
-    // pellet
-    xs.push_back(rand() % 48);
-    ys.push_back(rand() % 27);
-    zs.push_back(1);
+    px = rand() % 48;
+    py = rand() % 27;
+    drawPoint(px, py, qRgb(255, 0, 0));
 
     xs.push_back(x);
     ys.push_back(y);
-    zs.push_back(0);
 
     drawSnake();
 }
@@ -82,25 +78,23 @@ void MainWindow::right(){
 
 void MainWindow::drawSnake(){
 
-    // add some logic to see if the point is already drawn on
-    // or out of bounds
-    // or a goal square
+    // add some logic to see if the point is out of bounds
 
     for (int i = 0; i < xs.size() -1; i++){
         if (xs.at(i) == x && ys.at(i) == y){
-            // snake!
-            if (zs.at(i) == 0){
-                QMessageBox::information(this, tr("hit snake"), tr("You Lose!"));
-            }
+            QMessageBox::information(this, tr("hit snake"), tr("You Lose!"));
+        }
 
-            // pellet
-            else if (zs.at(i) == 1){
-                zs.at(i) = 0;           // food pixel becomes snake
-                xs.push_back(x);
-                ys.push_back(y);
-                zs.push_back(0); // 0 for snake, 1 for pellet,
-                std::cout << "PELLET" << std::endl;
-            }
+        else if (x == px && y == py){
+            xs.push_back(x);
+            ys.push_back(y);
+
+            // old pellet position will be colored over anyway
+            px = rand() % 48;
+            py = rand() % 27;
+            drawPoint(px, py, qRgb(255, 0, 0));
+
+            std::cout << "PELLET" << std::endl;
         }
         // blank space
         else {
@@ -109,24 +103,15 @@ void MainWindow::drawSnake(){
 
             xs.push_back(x);
             ys.push_back(y);
-            zs.push_back(0);
 
             xs.erase(xs.begin());
             ys.erase(ys.begin());
-            zs.erase(zs.begin());
         }
     }
 
 
-    // draw snake + pellet
-    for (int k = 0; k < xs.size(); k++){
-        if (zs.at(k) == 0){
-            drawPoint(xs.at(k), ys.at(k), qRgb(0, 255, 0));
-        }
-        else{
-            drawPoint(xs.at(k), ys.at(k), qRgb(255, 0, 0));
-        }
-    }
+    // draw snake
+    drawPoint(x, y, qRgb(0, 255, 0));
 }
 
 void MainWindow::drawPoint(int x0, int y0, QRgb color){

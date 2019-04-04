@@ -31,7 +31,8 @@ public:
 
     std::vector<int> xs;
     std::vector<int> ys;
-    std::vector<int> zs;
+    int px;
+    int py;
 
     void drawSnake();
     void drawPoint(int x, int y, QRgb color);
