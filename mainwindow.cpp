@@ -5,30 +5,76 @@
 #include <stdlib.h>
 #include <time.h>
 #include <iostream>
+#include <pthread.h>
+#include <cstdlib>
+#include <signal.h>
+#include <unistd.h>
+#include <ncurses.h>
+#include <QKeyEvent>
 
-/*
- *
- * randomly initizalizing the snake to 3 squares needs done
- *
-*/
 
+
+void * keyboard(void* w){
+//    QWidget win = (QWidget) w;
+    while(1){
+//        win.drawSnake();
+        sleep(1);
+    }
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *k){
+    int c = k->key();
+  //  std::cout << k->nativeVirtualKey() << std::endl;
+    switch(c){
+        case Qt::Key_Up:
+            d = 0;
+            y--;
+            break;
+        case Qt::Key_Left:
+            d = 1;
+            x--;
+            break;
+        case Qt::Key_Right:
+            d = 2;
+            x++;
+            break;
+        case Qt::Key_Down:
+            d = 3;
+            y++;
+            break;
+    }
+    drawSnake();
+}
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    // grabs focus from buttons
+    QWidget::grabKeyboard();
+
+    // create thread for movement
+    pthread_attr_t attr;
+    struct sched_param sp;
+    pthread_attr_init(&attr);
+    pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    pthread_attr_setschedparam(&attr, &sp);
+    pthread_t threadProducer0;
+    pthread_create(&threadProducer0, &attr, keyboard, (void*) this);
+
+    // setup ui
     ui->setupUi(this);
-        imgScreen = QImage(480, 270, QImage::Format_RGB888);
-        ui->screen->setPixmap(QPixmap::fromImage(imgScreen));
-        ui->screen->repaint();
-        srand(time(NULL));
-        newGame();
+    imgScreen = QImage(480, 270, QImage::Format_RGB888);
+    ui->screen->setPixmap(QPixmap::fromImage(imgScreen));
+    ui->screen->repaint();
+    srand(time(NULL));
+    newGame();
 }
 
 MainWindow::~MainWindow()
 {
+    pthread_exit(NULL);
+
     delete ui;
 }
-
-
 
 void MainWindow::newGame(){
 
@@ -42,8 +88,11 @@ void MainWindow::newGame(){
     //srand(time(NULL));
     xs.clear();
     ys.clear();
-    x = rand() % 48;
-    y = rand() % 27;
+    //calc snake head
+    x = rand() % 44+2;
+    y = rand() % 23+2;
+
+    //calc pellet and draw
     px = rand() % 48;
     py = rand() % 27;
     drawPoint(px, py, qRgb(255, 0, 0));
@@ -51,32 +100,111 @@ void MainWindow::newGame(){
     xs.push_back(x);
     ys.push_back(y);
 
-    drawSnake();
+    drawPoint(x, y, qRgb(0, 255, 0));
+    int ran = rand()%6;
+    //std::cout << ran << "\n";
+    switch(ran){
+        case 0:
+        if(y > 24){
+            y++;
+            drawGreen(x,y);
+            y++;
+            drawGreen(x,y);
+        } else{
+            y--;
+            drawGreen(x,y);
+            y--;
+            drawGreen(x,y);
+        }
+        break;
+        case 1:
+        if(x < 15){
+            x++;
+            drawGreen(x,y);
+            x++;
+            drawGreen(x,y);
+        } else{
+            x--;
+            drawGreen(x,y);
+            x--;
+            drawGreen(x,y);
+        }
+        break;
+        case 2:
+        y++;
+        drawGreen(x,y);
+        if(x > 15){
+            x--;
+            drawGreen(x,y);
+        } else{
+            x++;
+            drawGreen(x,y);
+        }
+        break;
+        case 3:
+            y--;
+            drawGreen(x,y);
+            if(x > 15){
+                x--;
+                drawGreen(x,y);
+            } else{
+                x++;
+                drawGreen(x,y);
+            }
+        break;
+        case 4:
+            y--;
+            drawGreen(x,y);
+            if(x > 15){
+                x--;
+                drawGreen(x,y);
+            } else{
+                x++;
+                drawGreen(x,y);
+            }
+        break;
+        default:
+            y++;
+            drawGreen(x,y);
+            if(x > 15){
+                x--;
+                drawGreen(x,y);
+            } else{
+                x++;
+                drawGreen(x,y);
+            }
+        break;
+    }
+}
+
+void MainWindow::drawGreen(int x, int y){
+    xs.push_back(x);
+    ys.push_back(y);
+    drawPoint(x, y, qRgb(0, 255, 0));
 }
 
 void MainWindow::pause(){
     // no need to implement yet
-
 }
 
 void MainWindow::up(){
     y--;
-    drawSnake();
+//    d = 0;
 }
 
 void MainWindow::down(){
     y++;
-    drawSnake();
+//    d = 2;
 }
 
 void MainWindow::left(){
     x--;
-    drawSnake();
+//    d = 1;
 }
 
 void MainWindow::right(){
     x++;
-    drawSnake();
+//    d = 3;
 }
 
 

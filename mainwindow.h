@@ -24,10 +24,8 @@ public:
     int x;
     int y;
 
-    // snake array
-    struct point{
-        int x, y;
-    };
+    // current direction
+    int d;
 
     std::vector<int> xs;
     std::vector<int> ys;
@@ -36,6 +34,8 @@ public:
 
     void drawSnake();
     void drawPoint(int x, int y, QRgb color);
+    void drawGreen(int x, int y);
+    void keyPressEvent(QKeyEvent *k);
 
     ~MainWindow();
     
