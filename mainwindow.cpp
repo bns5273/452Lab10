@@ -9,18 +9,8 @@
 #include <cstdlib>
 #include <signal.h>
 #include <unistd.h>
-#include <ncurses.h>
 #include <QKeyEvent>
 
-
-
-void * keyboard(void* w){
-//    QWidget win = (QWidget) w;
-    while(1){
-//        win.drawSnake();
-        sleep(1);
-    }
-}
 
 void MainWindow::keyPressEvent(QKeyEvent *k){
     int c = k->key();
@@ -34,13 +24,13 @@ void MainWindow::keyPressEvent(QKeyEvent *k){
             d = 1;
             x--;
             break;
-        case Qt::Key_Right:
-            d = 2;
-            x++;
-            break;
         case Qt::Key_Down:
-            d = 3;
+            d = 2;
             y++;
+            break;
+        case Qt::Key_Right:
+            d = 3;
+            x++;
             break;
     }
     drawSnake();
@@ -48,17 +38,12 @@ void MainWindow::keyPressEvent(QKeyEvent *k){
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    // need to fix default direction. I think byrnes measured the longest side of the
+    // snake and set the direction to that axis
+    d = 0;
+
     // grabs focus from buttons
     QWidget::grabKeyboard();
-
-    // create thread for movement
-    pthread_attr_t attr;
-    struct sched_param sp;
-    pthread_attr_init(&attr);
-    pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
-    pthread_attr_setschedparam(&attr, &sp);
-    pthread_t threadProducer0;
-    pthread_create(&threadProducer0, &attr, keyboard, (void*) this);
 
     // setup ui
     ui->setupUi(this);
@@ -189,26 +174,32 @@ void MainWindow::pause(){
 
 void MainWindow::up(){
     y--;
-//    d = 0;
+    d = 0;
+    drawSnake();
 }
 
 void MainWindow::down(){
     y++;
-//    d = 2;
+    d = 2;
+    drawSnake();
 }
 
 void MainWindow::left(){
     x--;
-//    d = 1;
+    d = 1;
+    drawSnake();
 }
 
 void MainWindow::right(){
     x++;
-//    d = 3;
+    d = 3;
+    drawSnake();
 }
 
 
 void MainWindow::drawSnake(){
+    std::cout << d << std::endl;
+
     // out of bounds?
     if (x > 46 || x < 0 || y > 26 || y < 0){
         QMessageBox::information(this, tr("You Lose!"), tr("Out of bounds!"));
@@ -240,7 +231,6 @@ void MainWindow::drawSnake(){
     // blank space
     else {
         drawPoint(xs.at(0), ys.at(0), qRgb(0, 0, 0));
-        std::cout << xs.at(0) << " " << ys.at(0) << std::endl;
 
         xs.push_back(x);
         ys.push_back(y);
@@ -260,5 +250,10 @@ void MainWindow::drawPoint(int x0, int y0, QRgb color){
     }
 
     ui->screen->setPixmap(QPixmap::fromImage(imgScreen));
-    ui->screen->repaint();
+
+    // WE NEED TO USE THE UPDATE() FUNCTION INSTEAD OF REPAINT() SO THAT
+    // NEW PIXELS ARE ADDED TO A QUEUE
+    // AND ONLY THE MAIN THREAD WILL REPAINT. THIS MEANS THERE IS NO NEED
+    // FOR MANAGING A SHARED RESOURCE
+    ui->screen->update();
 }
