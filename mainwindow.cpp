@@ -14,7 +14,6 @@
 
 void MainWindow::keyPressEvent(QKeyEvent *k){
     int c = k->key();
-  //  std::cout << k->nativeVirtualKey() << std::endl;
     switch(c){
         case Qt::Key_Up:
             d = 0;
@@ -38,11 +37,12 @@ void MainWindow::keyPressEvent(QKeyEvent *k){
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    // TODO
     // need to fix default direction. I think byrnes measured the longest side of the
-    // snake and set the direction to that axis
+    // snake and set the direction perpendicular to that axis
     d = 0;
 
-    // grabs focus from buttons
+    // WITHOUT THIS THE ARROW KEYS ARE NOT CAUGHT BY keypressevent()
     QWidget::grabKeyboard();
 
     // setup ui
@@ -169,7 +169,7 @@ void MainWindow::drawGreen(int x, int y){
 }
 
 void MainWindow::pause(){
-    // no need to implement yet
+    // TODO
 }
 
 void MainWindow::up(){
