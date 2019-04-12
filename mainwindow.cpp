@@ -17,22 +17,17 @@ void MainWindow::keyPressEvent(QKeyEvent *k){
     switch(c){
         case Qt::Key_Up:
             d = 0;
-            y--;
             break;
         case Qt::Key_Left:
             d = 1;
-            x--;
             break;
         case Qt::Key_Down:
             d = 2;
-            y++;
             break;
         case Qt::Key_Right:
             d = 3;
-            x++;
             break;
     }
-    drawSnake();
 }
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -173,27 +168,19 @@ void MainWindow::pause(){
 }
 
 void MainWindow::up(){
-    y--;
     d = 0;
-    drawSnake();
 }
 
 void MainWindow::down(){
-    y++;
     d = 2;
-    drawSnake();
 }
 
 void MainWindow::left(){
-    x--;
     d = 1;
-    drawSnake();
 }
 
 void MainWindow::right(){
-    x++;
     d = 3;
-    drawSnake();
 }
 
 

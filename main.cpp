@@ -30,7 +30,7 @@ void * movement(void* w){
                 win->drawSnake();
                 break;
         }
-        sleep(1);
+        usleep(200000);
     }
 }
 
