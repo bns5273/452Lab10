@@ -34,6 +34,13 @@ void * movement(void* w){
     }
 }
 
+/*
+ * NOTES FROM CONVO WITH BYRNES
+ *
+ * move game engine logic to seperate thread
+ * protect resources properly : anything that can be modified by multiple threads
+*/
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -51,5 +58,3 @@ int main(int argc, char *argv[])
 
     return a.exec();
 }
-
-
