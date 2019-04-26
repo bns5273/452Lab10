@@ -1,4 +1,4 @@
-#-------------------------------------------------
+ #-------------------------------------------------
 #
 # Project created by QtCreator 2019-04-03T17:31:12
 #
@@ -24,12 +24,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 
+LIBS += -pthread -lrt
+QMAKE_CXXFLAGS += -pthread -lrt
+
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    threads.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    threads.h
 
 FORMS += \
         mainwindow.ui

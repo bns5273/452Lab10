@@ -1,6 +1,4 @@
 #include "mainwindow.h"
-#include <QMessageBox>
-#include <QGraphicsView>
 #include "ui_mainwindow.h"
 #include <stdlib.h>
 #include <time.h>
@@ -9,41 +7,46 @@
 #include <cstdlib>
 #include <signal.h>
 #include <unistd.h>
-#include <QKeyEvent>
+#include <QtCore>
+#include <string>
 
 
 void MainWindow::keyPressEvent(QKeyEvent *k){
     int c = k->key();
+    mutex->lock();
     switch(c){
         case Qt::Key_Up:
-            d = 0;
+            shared->d = 0;
             break;
         case Qt::Key_Left:
-            d = 1;
+            shared->d = 1;
             break;
         case Qt::Key_Down:
-            d = 2;
+            shared->d = 2;
             break;
         case Qt::Key_Right:
-            d = 3;
+            shared->d = 3;
             break;
     }
+    mutex->unlock();
 }
-
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent, state* s, QMutex* m) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    // TODO
-    // need to fix default direction. I think byrnes measured the longest side of the
-    // snake and set the direction perpendicular to that axis
-    d = 0;
-
     // WITHOUT THIS THE ARROW KEYS ARE NOT CAUGHT BY keypressevent()
     QWidget::grabKeyboard();
 
+    shared = s;
+    mutex = m;
+
+    mutex->lock();
+    shared->d = 0;
+    shared->imgScreen = QImage(480, 270, QImage::Format_RGB888);
+    mutex->unlock();
+
     // setup ui
     ui->setupUi(this);
-    imgScreen = QImage(480, 270, QImage::Format_RGB888);
-    ui->screen->setPixmap(QPixmap::fromImage(imgScreen));
+
+    ui->screen->setPixmap(QPixmap::fromImage(shared->imgScreen));
     ui->screen->repaint();
     srand(time(NULL));
     newGame();
@@ -56,191 +59,251 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::newGame(){
-
-
-//    imgScreen = QImage(480, 270, QImage::Format_RGB888);
-    imgScreen.fill(Qt::black);
-//    ui->screen->setPixmap(QPixmap::fromImage(imgScreen));
-//    ui->screen->repaint();
-
-
-    //srand(time(NULL));
-    xs.clear();
-    ys.clear();
-    //calc snake head
-    x = rand() % 44+2;
-    y = rand() % 23+2;
-
-    //calc pellet and draw
-    px = rand() % 48;
-    py = rand() % 27;
-    drawPoint(px, py, qRgb(255, 0, 0));
-
-    xs.push_back(x);
-    ys.push_back(y);
-
-    drawPoint(x, y, qRgb(0, 255, 0));
-    int ran = rand()%6;
-    //std::cout << ran << "\n";
-    switch(ran){
-        case 0:
-        if(y > 24){
-            y++;
-            drawGreen(x,y);
-            y++;
-            drawGreen(x,y);
-        } else{
-            y--;
-            drawGreen(x,y);
-            y--;
-            drawGreen(x,y);
-        }
-        break;
-        case 1:
-        if(x < 15){
-            x++;
-            drawGreen(x,y);
-            x++;
-            drawGreen(x,y);
-        } else{
-            x--;
-            drawGreen(x,y);
-            x--;
-            drawGreen(x,y);
-        }
-        break;
-        case 2:
-        y++;
-        drawGreen(x,y);
-        if(x > 15){
-            x--;
-            drawGreen(x,y);
-        } else{
-            x++;
-            drawGreen(x,y);
-        }
-        break;
-        case 3:
-            y--;
-            drawGreen(x,y);
-            if(x > 15){
-                x--;
-                drawGreen(x,y);
-            } else{
-                x++;
-                drawGreen(x,y);
-            }
-        break;
-        case 4:
-            y--;
-            drawGreen(x,y);
-            if(x > 15){
-                x--;
-                drawGreen(x,y);
-            } else{
-                x++;
-                drawGreen(x,y);
-            }
-        break;
-        default:
-            y++;
-            drawGreen(x,y);
-            if(x > 15){
-                x--;
-                drawGreen(x,y);
-            } else{
-                x++;
-                drawGreen(x,y);
-            }
-        break;
-    }
-}
-
-void MainWindow::drawGreen(int x, int y){
-    xs.push_back(x);
-    ys.push_back(y);
-    drawPoint(x, y, qRgb(0, 255, 0));
-}
 
 void MainWindow::pause(){
-    // TODO
+    //QMessageBox MessageBox;
+    //QMessageBox::information(this, tr("Game Paused"), tr("Click "PAUSE" button again to unpause"));
+    shared->paused = !shared->paused;
+    if(shared->paused){
+        ui->Pause->setText("Resume");
+    }else{
+        ui->Pause->setText("Pause");
+    }
 }
 
 void MainWindow::up(){
-    d = 0;
+    mutex->lock();
+    shared->d = 0;
+    mutex->unlock();
 }
 
 void MainWindow::down(){
-    d = 2;
+    mutex->lock();
+    shared->d = 2;
+    mutex->unlock();
 }
 
 void MainWindow::left(){
-    d = 1;
+    mutex->lock();
+    shared->d = 1;
+    mutex->unlock();
 }
 
 void MainWindow::right(){
-    d = 3;
-}
-
-
-void MainWindow::drawSnake(){
-    std::cout << d << std::endl;
-
-    // out of bounds?
-    if (x > 46 || x < 0 || y > 26 || y < 0){
-        QMessageBox::information(this, tr("You Lose!"), tr("Out of bounds!"));
-        newGame();
-    }
-
-    // already taken by snake?
-    for (int i = 0; i < xs.size() -1; i++){
-        if (xs.at(i) == x && ys.at(i) == y){
-            QMessageBox::information(this, tr("You Lose!"), tr("Stop hitting yourself!"));
-            newGame();
-        }
-    }
-
-    // pellet?
-    if (x == px && y == py){
-        xs.push_back(x);
-        ys.push_back(y);
-
-        // old pellet position will be colored over
-        drawPoint(px, py, qRgb(0, 255, 0));
-        px = rand() % 48;
-        py = rand() % 27;
-        drawPoint(px, py, qRgb(255, 0, 0));
-
-        std::cout << "PELLET" << std::endl;
-    }
-
-    // blank space
-    else {
-        drawPoint(xs.at(0), ys.at(0), qRgb(0, 0, 0));
-
-        xs.push_back(x);
-        ys.push_back(y);
-
-        xs.erase(xs.begin());
-        ys.erase(ys.begin());
-
-        drawPoint(x, y, qRgb(0, 255, 0));
-    }
+    mutex->lock();
+    shared->d = 3;
+    mutex->unlock();
 }
 
 void MainWindow::drawPoint(int x0, int y0, QRgb color){
     for (int i = 0; i < 10; i++){
         for (int j = 0; j < 10; j++){
-            imgScreen.setPixel(x0*10 + i, y0*10 + j, color);
+            mutex->lock();
+            shared->imgScreen.setPixel(x0*10 + i, y0*10 + j, color);
+            mutex->unlock();
         }
     }
 
-    ui->screen->setPixmap(QPixmap::fromImage(imgScreen));
+    ui->screen->setPixmap(QPixmap::fromImage(shared->imgScreen));
 
     // WE NEED TO USE THE UPDATE() FUNCTION INSTEAD OF REPAINT() SO THAT
     // NEW PIXELS ARE ADDED TO A QUEUE
-    // AND ONLY THE MAIN THREAD WILL REPAINT. THIS MEANS THERE IS NO NEED
-    // FOR MANAGING A SHARED RESOURCE
+    // AND ONLY 1 THREAD WILL REPAINT.
     ui->screen->update();
 }
+
+
+void MainWindow::newGame(){
+    //makeTimer();
+    ui->Pause->setText("Pause");
+
+    mutex->lock();
+    shared->paused = false;
+    shared->imgScreen.fill(Qt::black);
+    shared->score = 0;   //reset score for next game
+    shared->difficulty = 0;  //reset diff
+    shared->speed = 200000;  //reset speed
+    shared->checker = true;
+    updateDifficulty();
+    //srand(time(NULL));
+    shared->xs.clear();
+    shared->ys.clear();
+    //calc snake head
+    shared->x = rand() % 44+2;
+    shared->y = rand() % 23+2;
+
+
+
+    //calc pellet and draw
+    shared->px = rand() % 48;
+    shared->py = rand() % 27;
+    int col2 = rand()%3*10;
+    int col = rand()%3*60;
+    drawPoint(shared->px, shared->py, qRgb(col2+225, col+50, col+50));
+
+    shared->xs.push_back(shared->x);
+    shared->ys.push_back(shared->y);
+
+    drawPoint(shared->x, shared->y, qRgb(244, 66, 244));
+    int ran = rand()%6;
+    switch(ran){
+        case 0:
+            if(shared->y > 24){
+                shared->y++;
+                drawGreen();
+                shared->y++;
+                drawGreen();
+                shared->d = 2;
+            } else{
+                shared->y--;
+                drawGreen();
+                shared->y--;
+                drawGreen();
+                shared->d = 0;
+            }
+            break;
+        case 1:
+            if(shared->x < 15){
+                shared->x++;
+                drawGreen();
+                shared->x++;
+                drawGreen();
+                shared->d = 3;
+            } else{
+                shared->x--;
+                drawGreen();
+                shared->x--;
+                drawGreen();
+                shared->d = 1;
+            }
+            break;
+        case 2:
+            shared->y++;
+            drawGreen();
+            if(shared->x > 15){
+                shared->x--;
+                drawGreen();
+                shared->d = 1;
+            } else{
+                shared->x++;
+                drawGreen();
+                shared->d = 3;
+            }
+            break;
+        case 3:
+            shared->y--;
+            drawGreen();
+            if(shared->x > 15){
+                shared->x--;
+                drawGreen();
+                shared->d = 1;
+            } else{
+                shared->x++;
+                drawGreen();
+                shared->d = 3;
+            }
+            break;
+        case 4:
+            shared->y--;
+            drawGreen();
+            if(shared->x > 15){
+                shared->x--;
+                drawGreen();
+                shared->d = 1;
+            } else{
+                shared->x++;
+                drawGreen();
+                shared->d = 3;
+            }
+            break;
+        default:
+            shared->y++;
+            drawGreen();
+            if(shared->x > 15){
+                shared->x--;
+                drawGreen();
+                shared->d = 1;
+            } else{
+                shared->x++;
+                drawGreen();
+                shared->d = 3;
+            }
+            break;
+    }
+    mutex->unlock();
+}
+
+void MainWindow::drawGreen(){
+    mutex->lock();
+    shared->xs.push_back(shared->x);
+    shared->ys.push_back(shared->y);
+    drawPoint(shared->x, shared->y, qRgb(0, 255, 0));
+    mutex->unlock();
+}
+void MainWindow::updateDifficulty(){
+    QString qstr = "0000000000";
+    QString qstr1 = "E";
+    qstr.setNum(shared->score);
+    ui->label_3->setText(qstr);
+
+    if(shared->difficulty == 0){
+        ui->label_4->setText("E");
+    } else if(shared->difficulty == 1){
+        ui->label_4->setText("M");
+    } else{
+        ui->label_4->setText("H");
+    }
+}
+
+void MainWindow::drawSnake(){
+    mutex->lock();
+
+    // out of bounds?
+    if (shared->x > 46 || shared->x < 0 || shared->y > 26 || shared->y < 0){
+//        QMessageBox::information(this, tr("You Lose!"), tr("Out of bounds!"));
+        newGame();
+    }
+
+    // already taken by snake?
+    for (int i = 0; i < shared->xs.size() -1; i++){
+        if (shared->xs.at(i) == shared->x && shared->ys.at(i) == shared->y){
+//            QMessageBox::information(this, tr("You Lose!"), tr("Stop hitting yourself!"));
+            newGame();
+            break;
+        }
+    }
+    ///////////////////////////////////////////////////////////////////////
+    //                       COLLISSION WITH PELLET                      //
+    ///////////////////////////////////////////////////////////////////////
+    // we hit the pellet
+    if (shared->x == shared->px && shared->y == shared->py){
+        shared->xs.push_back(shared->x);
+        shared->ys.push_back(shared->y);
+
+        // old pellet position will be colored over
+        drawPoint(shared->px, shared->py, qRgb(244, 66, 244)); //colors snake body as if it ate the pellet
+        //resetTimer();
+        shared->checker = true;
+    }
+
+
+    // blank space
+    else {
+        drawPoint(shared->xs.at(0), shared->ys.at(0), qRgb(0, 0, 0));
+
+        shared->xs.push_back(shared->x);
+        shared->ys.push_back(shared->y);
+
+        shared->xs.erase(shared->xs.begin());
+        shared->ys.erase(shared->ys.begin());
+        int x2,y2;
+        x2 = shared->xs.size()-2;
+        y2 = shared->ys.size()-2;
+
+        drawPoint(shared->x, shared->y, qRgb(244, 66, 244));                   //colors snake head
+        drawPoint(shared->xs.at(x2), shared->ys.at(y2), qRgb(0, 255, 0));     //colors snake body
+
+    }
+    mutex->unlock();
+}
+

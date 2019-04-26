@@ -6,22 +6,22 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>350</height>
+    <width>634</width>
+    <height>355</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>D4NG3R N00DL3</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color:rgb(171, 171, 171)</string>
+   <string notr="true">background-color:rgb(0, 165, 165)</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QPushButton" name="right">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>190</y>
+      <x>520</x>
+      <y>230</y>
       <width>31</width>
       <height>27</height>
      </rect>
@@ -33,8 +33,8 @@
    <widget class="QPushButton" name="left">
     <property name="geometry">
      <rect>
-      <x>550</x>
-      <y>190</y>
+      <x>580</x>
+      <y>230</y>
       <width>31</width>
       <height>27</height>
      </rect>
@@ -46,8 +46,8 @@
    <widget class="QPushButton" name="up">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>160</y>
+      <x>550</x>
+      <y>200</y>
       <width>31</width>
       <height>27</height>
      </rect>
@@ -59,8 +59,8 @@
    <widget class="QPushButton" name="down">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>220</y>
+      <x>550</x>
+      <y>260</y>
       <width>31</width>
       <height>27</height>
      </rect>
@@ -72,8 +72,8 @@
    <widget class="QPushButton" name="newGame">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>10</y>
+      <x>520</x>
+      <y>30</y>
       <width>100</width>
       <height>27</height>
      </rect>
@@ -85,8 +85,8 @@
    <widget class="QPushButton" name="Pause">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>50</y>
+      <x>520</x>
+      <y>70</y>
       <width>100</width>
       <height>27</height>
      </rect>
@@ -98,21 +98,21 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>90</y>
+      <x>520</x>
+      <y>130</y>
       <width>76</width>
       <height>19</height>
      </rect>
     </property>
     <property name="text">
-     <string>Level:</string>
+     <string>Difficulty:</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>120</y>
+      <x>520</x>
+      <y>160</y>
       <width>76</width>
       <height>19</height>
      </rect>
@@ -124,8 +124,8 @@
    <widget class="QLabel" name="screen">
     <property name="geometry">
      <rect>
-      <x>5</x>
-      <y>5</y>
+      <x>30</x>
+      <y>20</y>
       <width>470</width>
       <height>270</height>
      </rect>
@@ -134,14 +134,68 @@
      <string/>
     </property>
    </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>160</y>
+      <width>62</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>130</y>
+      <width>62</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>490</width>
+      <height>320</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:rgb(171, 171, 171)</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <zorder>label_5</zorder>
+   <zorder>screen</zorder>
+   <zorder>right</zorder>
+   <zorder>left</zorder>
+   <zorder>up</zorder>
+   <zorder>down</zorder>
+   <zorder>newGame</zorder>
+   <zorder>Pause</zorder>
+   <zorder>label</zorder>
+   <zorder>label_2</zorder>
+   <zorder>label_3</zorder>
+   <zorder>label_4</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>600</width>
-     <height>24</height>
+     <width>634</width>
+     <height>25</height>
     </rect>
    </property>
   </widget>
