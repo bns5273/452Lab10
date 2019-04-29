@@ -64,30 +64,30 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    state* shared;
+    state* s;
     QMutex* mutex;
 
     explicit MainWindow(QWidget *parent = nullptr, state* s = nullptr, QMutex* m = nullptr);
 
-    //Q_SLOT void updateGameArea();
+    Q_SLOT void drawPoint(int x, int y, QRgb color);
 
     ////////////////////////
     //      Functions     //
     ////////////////////////
     void drawSnake();
-    void drawPoint(int x, int y, QRgb color);
-    void drawGreen();
     void keyPressEvent(QKeyEvent *k);
-    void updateDifficulty();
+
     ~MainWindow();
     
 private slots:
-    void newGame();
     void pause();
     void up();
     void right();
     void down();
     void left();
+    void newGame();
+    void drawGreen();
+    void updateDifficulty();
 
 private:
     Ui::MainWindow *ui;

@@ -7,6 +7,9 @@
 class moveThread : public QThread {
 public:
     moveThread(QMutex* m, MainWindow* w, state* s);
+
+    void drawSnake();
+
     // overriding the QThread's run() method
     void run();
 
@@ -29,7 +32,7 @@ public:
     void makeTimer();
     void run();
 
-    state* shared;
+    state* s;
     MainWindow* win;
     QMutex* mutex;
 };
