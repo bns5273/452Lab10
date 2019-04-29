@@ -16,8 +16,7 @@ void moveThread::run() {
         while(s->paused){
             usleep(s->speed);
         }
-        QMutex mutex;
-        mutex.lock();
+        mutex->lock();
         switch(s->d){
             case 0:
                 s->y--;
@@ -36,8 +35,7 @@ void moveThread::run() {
                 win->drawSnake();
                 break;
         }
-        mutex.unlock();
-
+        mutex->unlock();
         usleep(s->speed);
     }
 }
@@ -64,10 +62,13 @@ bool timeThread::inSnake(){
 void timeThread::run(){
     makeTimer();
     while(1){
+        mutex->lock();
         if(shared->checker){
             resetApple(win,1);
             resetTimer();
         }
+        mutex->unlock();
+
         while(shared->paused){
             usleep(shared->speed);
             if(!shared->paused)
@@ -90,12 +91,12 @@ void thread_handler_temp(sigval sv){
 }
 
 void timeThread::thread_handler(sigval_t sv) {
-    mutex->lock();
+    QMutexLocker locker(mutex);
     shared->checker = true;
-    mutex->unlock();
 }
 
 void timeThread::makeTimer(){
+    QMutexLocker locker(mutex);
     memset(&sev, 0, sizeof(struct sigevent));
     memset(&trig, 0, sizeof(struct itimerspec));
     sev.sigev_notify = SIGEV_THREAD;
@@ -105,33 +106,27 @@ void timeThread::makeTimer(){
     trig.it_value.tv_sec = 10;
     timer_settime(timerid, 0, &trig, NULL);
 
-    mutex->lock();
     shared->checker = false;
-    mutex->unlock();
 }
 
 void timeThread::resetApple(MainWindow* w, int boo){
-
+    QMutexLocker locker(mutex);
     if(!(shared->x == shared->px && shared->y == shared->py)){
         // old pellet position will be colored over
         win->drawPoint(shared->px, shared->py, qRgb(0, 0, 0));
     }else{
-        mutex->lock();
         shared->score = shared->score+1;
         if(shared->score%10 == 0){
             shared->difficulty++;
             if(shared->difficulty < 3)
                 shared->speed = shared->speed-50000;
         }
-        mutex->unlock();
         win->updateDifficulty();
     }
 
     do{
-        mutex->lock();
         shared->px = rand() % 48;
         shared->py = rand() % 27;
-        mutex->unlock();
     }while(inSnake());
 
     int col2 = rand()%3*10;

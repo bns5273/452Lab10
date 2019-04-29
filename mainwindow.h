@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <QKeyEvent>
 #include <QMutex>
+#include <QSharedMemory>
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -67,6 +68,8 @@ public:
     QMutex* mutex;
 
     explicit MainWindow(QWidget *parent = nullptr, state* s = nullptr, QMutex* m = nullptr);
+
+    //Q_SLOT void updateGameArea();
 
     ////////////////////////
     //      Functions     //

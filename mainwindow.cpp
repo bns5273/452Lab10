@@ -12,8 +12,8 @@
 
 
 void MainWindow::keyPressEvent(QKeyEvent *k){
+    QMutexLocker locker(mutex);
     int c = k->key();
-    mutex->lock();
     switch(c){
         case Qt::Key_Up:
             shared->d = 0;
@@ -28,20 +28,24 @@ void MainWindow::keyPressEvent(QKeyEvent *k){
             shared->d = 3;
             break;
     }
-    mutex->unlock();
 }
 MainWindow::MainWindow(QWidget *parent, state* s, QMutex* m) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    // locks the mutex for the duration of the function run-time
+    // NOT THE DURATION OF THE MAINWINDOW INSTANCE!
+    QMutexLocker locker(mutex);
+
+
     // WITHOUT THIS THE ARROW KEYS ARE NOT CAUGHT BY keypressevent()
     QWidget::grabKeyboard();
 
     shared = s;
     mutex = m;
 
-    mutex->lock();
+//    mutex->lock();
     shared->d = 0;
     shared->imgScreen = QImage(480, 270, QImage::Format_RGB888);
-    mutex->unlock();
+//    mutex->unlock();
 
     // setup ui
     ui->setupUi(this);
@@ -54,8 +58,6 @@ MainWindow::MainWindow(QWidget *parent, state* s, QMutex* m) : QMainWindow(paren
 
 MainWindow::~MainWindow()
 {
-    pthread_exit(NULL);
-
     delete ui;
 }
 
@@ -72,35 +74,30 @@ void MainWindow::pause(){
 }
 
 void MainWindow::up(){
-    mutex->lock();
+    QMutexLocker locker(mutex);
     shared->d = 0;
-    mutex->unlock();
 }
 
 void MainWindow::down(){
-    mutex->lock();
+    QMutexLocker locker(mutex);
     shared->d = 2;
-    mutex->unlock();
 }
 
 void MainWindow::left(){
-    mutex->lock();
+    QMutexLocker locker(mutex);
     shared->d = 1;
-    mutex->unlock();
 }
 
 void MainWindow::right(){
-    mutex->lock();
+    QMutexLocker locker(mutex);
     shared->d = 3;
-    mutex->unlock();
 }
 
 void MainWindow::drawPoint(int x0, int y0, QRgb color){
+    QMutexLocker locker(mutex);
     for (int i = 0; i < 10; i++){
         for (int j = 0; j < 10; j++){
-            mutex->lock();
             shared->imgScreen.setPixel(x0*10 + i, y0*10 + j, color);
-            mutex->unlock();
         }
     }
 
@@ -114,10 +111,10 @@ void MainWindow::drawPoint(int x0, int y0, QRgb color){
 
 
 void MainWindow::newGame(){
+    QMutexLocker locker(mutex);
     //makeTimer();
     ui->Pause->setText("Pause");
 
-    mutex->lock();
     shared->paused = false;
     shared->imgScreen.fill(Qt::black);
     shared->score = 0;   //reset score for next game
@@ -230,17 +227,16 @@ void MainWindow::newGame(){
             }
             break;
     }
-    mutex->unlock();
 }
 
 void MainWindow::drawGreen(){
-    mutex->lock();
+    QMutexLocker locker(mutex);
     shared->xs.push_back(shared->x);
     shared->ys.push_back(shared->y);
     drawPoint(shared->x, shared->y, qRgb(0, 255, 0));
-    mutex->unlock();
 }
 void MainWindow::updateDifficulty(){
+    QMutexLocker locker(mutex);
     QString qstr = "0000000000";
     QString qstr1 = "E";
     qstr.setNum(shared->score);
@@ -256,7 +252,7 @@ void MainWindow::updateDifficulty(){
 }
 
 void MainWindow::drawSnake(){
-    mutex->lock();
+    QMutexLocker locker(mutex);
 
     // out of bounds?
     if (shared->x > 46 || shared->x < 0 || shared->y > 26 || shared->y < 0){
@@ -304,6 +300,5 @@ void MainWindow::drawSnake(){
         drawPoint(shared->xs.at(x2), shared->ys.at(y2), qRgb(0, 255, 0));     //colors snake body
 
     }
-    mutex->unlock();
 }
 
