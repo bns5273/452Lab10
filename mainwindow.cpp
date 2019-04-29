@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "threads.h"
 #include "ui_mainwindow.h"
 #include <stdlib.h>
 #include <time.h>
@@ -110,7 +111,7 @@ void MainWindow::newGame(){
     s->score = 0;   //reset score for next game
     s->difficulty = 0;  //reset diff
     s->speed = 200000;  //reset speed
-    s->checker = true;
+    checker = true;
     updateDifficulty();
     //srand(time(NULL));
     s->xs.clear();

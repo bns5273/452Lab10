@@ -16,12 +16,12 @@
 #include <QKeyEvent>
 #include <QMutex>
 #include <QSharedMemory>
-
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QPainter>
 #include <QGraphicsPixmapItem>
 #include <vector>
+
 
 typedef struct {
     bool checker;
@@ -64,21 +64,11 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    state* s;
-    QMutex* mutex;
-
     explicit MainWindow(QWidget *parent = nullptr, state* s = nullptr, QMutex* m = nullptr);
-
     Q_SLOT void drawPoint(int x, int y, QRgb color);
-
-    ////////////////////////
-    //      Functions     //
-    ////////////////////////
-    void drawSnake();
     void keyPressEvent(QKeyEvent *k);
-
     ~MainWindow();
-    
+
 private slots:
     void pause();
     void up();
@@ -90,6 +80,9 @@ private slots:
     void updateDifficulty();
 
 private:
+    state* s;
+    QMutex* mutex;
+
     Ui::MainWindow *ui;
 };
 

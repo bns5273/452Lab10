@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     movement.start();
 
 //    create thread for timing
-    timeThread time(&mutex, &w, &shared);
+    logicThread time(&mutex, &w, &shared);
     time.start();
 
     return a.exec();

@@ -5,6 +5,12 @@
 #include <pthread.h>
 
 
+timer_t timerid;
+struct sigevent sev;
+struct itimerspec trig;
+volatile bool checker = false;
+
+
 moveThread::moveThread(QMutex* m, MainWindow* w, state* s){
     this->s = s;
     win = w;
@@ -40,7 +46,7 @@ void moveThread::drawSnake(){
         win->drawPoint(s->px, s->py, qRgb(244, 66, 244)); //colors snake body as if it ate the pellet
 //        QMetaObject::invokeMethod(win, "drawPoint", Qt::DirectConnection, Q_ARG(int, s->px), Q_ARG(int, s->py), Q_ARG(QRgb, qRgb(244, 66, 244)));
         //resetTimer();
-        s->checker = true;
+        checker = true;
     }
 
 
@@ -97,13 +103,13 @@ void moveThread::run() {
 
 
 
-timeThread::timeThread(QMutex* m, MainWindow* w, state* s){
+logicThread::logicThread(QMutex* m, MainWindow* w, state* s){
     mutex = m;
     win = w;
     this->s = s;
 }
 
-bool timeThread::inSnake(){
+bool logicThread::inSnake(){
     QMutexLocker locker(mutex);
     for(int i = 0; i < s->xs.size(); i++){
         if(s->px == s->xs.at(i) && s->py == s->ys.at(i)){
@@ -115,11 +121,11 @@ bool timeThread::inSnake(){
     return false;
 }
 
-void timeThread::run(){
+void logicThread::run(){
     makeTimer();
     while(1){
         mutex->lock();
-        if(s->checker){
+        if(checker){
             resetApple(win,1);
             resetTimer();
         }
@@ -134,40 +140,27 @@ void timeThread::run(){
 }
 
 
-
-
-timer_t timerid;
-struct sigevent sev;
-struct itimerspec trig;
-bool checker = false;
-
-
-void thread_handler_temp(sigval sv){
-
+// needed to not be a member function of timeThread so that we could use
+// it for the timer thread handler
+void thread_handler(sigval sv){
+    checker = true;
 }
 
-void timeThread::thread_handler(sigval_t sv) {
-    QMutexLocker locker(mutex);
-    s->checker = true;
-}
-
-void timeThread::makeTimer(){
+void logicThread::makeTimer(){
     QMutexLocker locker(mutex);
     memset(&sev, 0, sizeof(struct sigevent));
     memset(&trig, 0, sizeof(struct itimerspec));
     sev.sigev_notify = SIGEV_THREAD;
 
-    // this isn't working right...
-    // cant use a member function here!
-    sev.sigev_notify_function = &thread_handler_temp;
+    sev.sigev_notify_function = &thread_handler;
     timer_create(CLOCK_REALTIME, &sev, &timerid);
     trig.it_value.tv_sec = 10;
     timer_settime(timerid, 0, &trig, NULL);
 
-    s->checker = false;
+    checker = false;
 }
 
-void timeThread::resetApple(MainWindow* w, int boo){
+void logicThread::resetApple(MainWindow* w, int boo){
     QMutexLocker locker(mutex);
     if(!(s->x == s->px && s->y == s->py)){
         // old pellet position will be colored over
@@ -195,7 +188,7 @@ void timeThread::resetApple(MainWindow* w, int boo){
 //    QMetaObject::invokeMethod(win, "drawPoint", Qt::DirectConnection, Q_ARG(int, s->px), Q_ARG(int, s->py), Q_ARG(QRgb, qRgb(col2+225, col+50, col+50)));
 }
 
-void timeThread::resetTimer(){
+void logicThread::resetTimer(){
     timer_delete(timerid);
     makeTimer();
 }
